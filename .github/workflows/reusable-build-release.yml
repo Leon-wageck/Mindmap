@@ -70,9 +70,10 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }}
 
-      - name: Install PyInstaller
+      - name: Install dependencies (requirements + PyInstaller)
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install pyinstaller
 
       # ---------------- WINDOWS ----------------
@@ -81,7 +82,8 @@ jobs:
         shell: pwsh
         run: |
           $App = "${{ inputs.app_name }}"
-          pyinstaller --onefile --noconsole --name "$App" "${{ inputs.main_py_file }}"
+
+          pyinstaller --onefile --noconsole --name "$App" --collect-all PySide6 "${{ inputs.main_py_file }}"
 
           if (!(Test-Path "dist\$App.exe")) {
             throw "Expected dist\$App.exe not found"
@@ -98,7 +100,7 @@ jobs:
           set -euo pipefail
           APP="${{ inputs.app_name }}"
 
-          pyinstaller  --noconsole --onefile --name "$APP" "${{ inputs.main_py_file }}"
+          pyinstaller --onefile --noconsole --name "$APP" --collect-all PySide6 "${{ inputs.main_py_file }}"
 
           if [ ! -f "dist/$APP" ]; then
             echo "Expected dist/$APP not found"
